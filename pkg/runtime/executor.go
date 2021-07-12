@@ -27,6 +27,7 @@ import (
 	"github.com/accurics/terrascan/pkg/notifications"
 	"github.com/accurics/terrascan/pkg/policy"
 	opa "github.com/accurics/terrascan/pkg/policy/opa"
+	"github.com/accurics/terrascan/pkg/utils"
 	"github.com/hashicorp/go-multierror"
 )
 
@@ -193,6 +194,9 @@ func (e *Executor) Execute() (results Output, err error) {
 
 	// update results with resource config
 	results.ResourceConfig = resourceConfig
+
+	// get all vulnerabilities
+	results.ResourceConfig = utils.GetVulnerabilitiesUsingTrivyCLI(results.ResourceConfig)
 
 	if err := e.findViolations(&results); err != nil {
 		return results, err

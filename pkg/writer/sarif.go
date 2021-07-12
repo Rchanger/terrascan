@@ -18,14 +18,15 @@ package writer
 
 import (
 	"fmt"
+	"io"
+	"path/filepath"
+	"strings"
+
 	"github.com/accurics/terrascan/pkg/policy"
 	"github.com/accurics/terrascan/pkg/utils"
 	"github.com/accurics/terrascan/pkg/version"
 	"github.com/owenrumney/go-sarif/sarif"
 	"go.uber.org/zap"
-	"io"
-	"path/filepath"
-	"strings"
 )
 
 const (
@@ -51,7 +52,7 @@ func SarifWriter(data interface{}, writer io.Writer) error {
 	report.AddRun(run)
 
 	for _, passedRule := range outputData.PassedRules {
-		m := make(map[string]string)
+		m := sarif.Properties{}
 		m["category"] = passedRule.Category
 		m["severity"] = passedRule.Severity
 
@@ -61,7 +62,7 @@ func SarifWriter(data interface{}, writer io.Writer) error {
 
 	// for each result add the rule, location and result to the report
 	for _, violation := range outputData.Violations {
-		m := make(map[string]string)
+		m := sarif.Properties{}
 		m["category"] = violation.Category
 		m["severity"] = violation.Severity
 
