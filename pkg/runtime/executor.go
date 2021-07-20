@@ -197,6 +197,7 @@ func (e *Executor) Execute() (results Output, err error) {
 
 	// get all vulnerabilities
 	results.ResourceConfig = utils.GetVulnerabilitiesUsingTrivyCLI(results.ResourceConfig)
+	// results.ResourceConfig = utils.GetVulnerabilitiesUsingECRAPI(results.ResourceConfig)
 
 	if err := e.findViolations(&results); err != nil {
 		return results, err

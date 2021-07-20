@@ -12,6 +12,7 @@ require (
 	github.com/VerbalExpressions/GoVerbalExpressions v0.0.0-20200410162751-4d76a1099a6e
 	github.com/aquasecurity/fanal v0.0.0-20210707195741-f86e1e4589eb
 	github.com/aquasecurity/trivy v0.18.3
+	github.com/aws/aws-sdk-go v1.40.2
 	github.com/awslabs/goformation/v4 v4.19.1
 	github.com/ghodss/yaml v1.0.0
 	github.com/google/uuid v1.2.0

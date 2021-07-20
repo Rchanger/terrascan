@@ -1,0 +1,115 @@
+{
+  "kubernetes_pod": [
+    {
+      "id": "kubernetes_pod.backend-server-default",
+      "name": "backend-server",
+      "source": "testpod.yaml",
+      "line": 1,
+      "type": "kubernetes_pod",
+      "config": {
+        "apiVersion": "v1",
+        "kind": "Pod",
+        "metadata": {
+          "labels": {
+            "app": "goserver",
+            "tier": "backend"
+          },
+          "name": "backend-server"
+        },
+        "spec": {
+          "containers": [
+            {
+              "image": "245578940568.dkr.ecr.us-east-2.amazonaws.com/image-scan-poc-suvarna:terrascan",
+              "name": "goserver",
+              "readinessProbe": {
+                "command": [
+                  "go",
+                  "version"
+                ],
+                "exec": null,
+                "initialDelaySeconds": 10,
+                "periodSeconds": 10
+              },
+              "resources": {
+                "limits": {
+                  "cpu": "1",
+                  "memory": "256Mi"
+                },
+                "requests": {
+                  "cpu": "1",
+                  "memory": "256Mi"
+                }
+              },
+              "securityContext": {
+                "readOnlyRootFilesystem": true,
+                "runAsNonRoot": true
+              }
+            }
+          ],
+          "securityContext": {
+            "seccompProfile": {
+              "type": "RuntimeDefault"
+            }
+          }
+        }
+      },
+      "skip_rules": null,
+      "max_severity": "",
+      "min_severity": "",
+      "container_images": [
+        {
+          "name": "goserver",
+          "image": "245578940568.dkr.ecr.us-east-2.amazonaws.com/image-scan-poc-suvarna:terrascan",
+          "vulnerabilities": [
+            {
+              "target": "",
+              "vulnerabilityId": "CVE-2021-30139",
+              "pkgName": "apk-tools",
+              "installedVersion": "2.10.5-r1",
+              "layer": {},
+              "primaryURL": "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-30139",
+              "severity": "MEDIUM",
+              "cvss": {
+                "nvd": {
+                  "v2Vector": "AV:N/AC:L/Au:N/C:N/I:N/A:P",
+                  "v2Score": 5
+                }
+              }
+            },
+            {
+              "target": "",
+              "vulnerabilityId": "CVE-2021-28831",
+              "pkgName": "busybox",
+              "installedVersion": "1.31.1-r16",
+              "layer": {},
+              "primaryURL": "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-28831",
+              "severity": "MEDIUM",
+              "cvss": {
+                "nvd": {
+                  "v2Vector": "AV:N/AC:L/Au:N/C:N/I:N/A:P",
+                  "v2Score": 5
+                }
+              }
+            },
+            {
+              "target": "",
+              "vulnerabilityId": "CVE-2020-28928",
+              "pkgName": "musl",
+              "installedVersion": "1.1.24-r8",
+              "layer": {},
+              "primaryURL": "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-28928",
+              "severity": "LOW",
+              "cvss": {
+                "nvd": {
+                  "v2Vector": "AV:L/AC:L/Au:N/C:N/I:N/A:P",
+                  "v2Score": 2.1
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "init_container_images": []
+    }
+  ]
+}
