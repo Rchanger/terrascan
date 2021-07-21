@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ecr"
@@ -30,21 +31,25 @@ func ScanImageWithAWSECRAPI(ctx context.Context, imageName string) (*ecr.Describ
 		return nil, fmt.Errorf("invalid image refernce %s", imageName)
 	}
 
-	// start scan of the image
-	// input := ecr.StartImageScanInput{
-	// 	ImageId: &ecr.ImageIdentifier{
-	// 		ImageTag: &tag,
-	// 	},
-	// 	RepositoryName: &repositoryName,
-	// }
+	return GetImageScanResultFromECR(ctx, client, imageName, tag, repositoryName)
 
-	// req, _ := client.StartImageScanRequest(&input)
+}
 
-	// err := req.Send()
-	// if err != nil {
-	// 	zap.S().Error("error scaninng image %s: %v", imageName, err)
-	// 	return err
-	// }
+// StartECRImageScan starts the scan of provided image
+func StartECRImageScan(ctx context.Context, client *ecr.ECR, imageName, tag, repositoryName string) error {
+
+	input := ecr.StartImageScanInput{
+		ImageId: &ecr.ImageIdentifier{
+			ImageTag: &tag,
+		},
+		RepositoryName: &repositoryName,
+	}
+
+	_, err := client.StartImageScanWithContext(ctx, &input)
+	if err != nil {
+		zap.S().Error("error scaninng image %s: %v", imageName, err)
+		return err
+	}
 
 	describeImageScanFindingsInput := ecr.DescribeImageScanFindingsInput{
 		ImageId: &ecr.ImageIdentifier{
@@ -54,20 +59,47 @@ func ScanImageWithAWSECRAPI(ctx context.Context, imageName string) (*ecr.Describ
 	}
 
 	// wait until scan of image is complete
-	// err = client.WaitUntilImageScanComplete(&describeImageScanFindingsInput)
-	// if err != nil {
-	// 	zap.S().Error("error scaninng image %s: %v", imageName, err)
-	// 	return err
-	// }
+	err = client.WaitUntilImageScanComplete(&describeImageScanFindingsInput)
+	if err != nil {
+		zap.S().Error("error scaninng image %s: %v", imageName, err)
+		return err
+	}
+	return nil
+}
 
+// GetImageScanResultFromECR get the scan result from ECR
+func GetImageScanResultFromECR(ctx context.Context, client *ecr.ECR, imageName, tag, repositoryName string) (*ecr.DescribeImageScanFindingsOutput, error) {
+	describeImageScanFindingsInput := ecr.DescribeImageScanFindingsInput{
+		ImageId: &ecr.ImageIdentifier{
+			ImageTag: &tag,
+		},
+		RepositoryName: &repositoryName,
+	}
+	//TODO: add check for scan not found error
 	results, err := client.DescribeImageScanFindingsWithContext(ctx, &describeImageScanFindingsInput)
 	if err != nil {
 		zap.S().Error("error scaninng image %s: %v", imageName, err)
 		return results, err
 	}
+	if results != nil && results.ImageScanStatus != nil && results.ImageScanStatus.Status != nil && results.ImageScanFindings != nil && results.ImageScanFindings.ImageScanCompletedAt != nil {
+		if strings.EqualFold(*results.ImageScanStatus.Status, ecr.ScanStatusComplete) && time.Now().Before(results.ImageScanFindings.ImageScanCompletedAt.Add(24)) {
+			return results, nil
+		}
+		if strings.EqualFold(*results.ImageScanStatus.Status, ecr.ScanStatusFailed) {
+			return results, nil
+		}
+		if strings.EqualFold(*results.ImageScanStatus.Status, ecr.ScanStatusInProgress) {
+			return GetImageScanResultFromECR(ctx, client, imageName, tag, repositoryName)
+		}
+		if strings.EqualFold(*results.ImageScanStatus.Status, ecr.ScanStatusComplete) && time.Now().After(results.ImageScanFindings.ImageScanCompletedAt.Add(24)) {
+			err := StartECRImageScan(ctx, client, imageName, tag, repositoryName)
+			if err != nil {
+				return results, err
+			}
+			return GetImageScanResultFromECR(ctx, client, imageName, tag, repositoryName)
+		}
 
-	fmt.Println("findings<><>><><>", results)
-
+	}
 	return results, nil
 }
 
