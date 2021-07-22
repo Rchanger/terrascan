@@ -75,14 +75,20 @@ func GetImageScanResultFromECR(ctx context.Context, client *ecr.ECR, imageName, 
 		},
 		RepositoryName: &repositoryName,
 	}
-	//TODO: add check for scan not found error
 	results, err := client.DescribeImageScanFindingsWithContext(ctx, &describeImageScanFindingsInput)
 	if err != nil {
+		if _, ok := err.(*ecr.ScanNotFoundException); ok {
+			err := StartECRImageScan(ctx, client, imageName, tag, repositoryName)
+			if err != nil {
+				return results, err
+			}
+			return GetImageScanResultFromECR(ctx, client, imageName, tag, repositoryName)
+		}
 		zap.S().Error("error scaninng image %s: %v", imageName, err)
 		return results, err
 	}
 	if results != nil && results.ImageScanStatus != nil && results.ImageScanStatus.Status != nil && results.ImageScanFindings != nil && results.ImageScanFindings.ImageScanCompletedAt != nil {
-		if strings.EqualFold(*results.ImageScanStatus.Status, ecr.ScanStatusComplete) && time.Now().Before(results.ImageScanFindings.ImageScanCompletedAt.Add(24)) {
+		if strings.EqualFold(*results.ImageScanStatus.Status, ecr.ScanStatusComplete) && (*results.ImageScanFindings.ImageScanCompletedAt).Before(time.Now().Add(24*time.Hour)) {
 			return results, nil
 		}
 		if strings.EqualFold(*results.ImageScanStatus.Status, ecr.ScanStatusFailed) {
@@ -91,7 +97,7 @@ func GetImageScanResultFromECR(ctx context.Context, client *ecr.ECR, imageName, 
 		if strings.EqualFold(*results.ImageScanStatus.Status, ecr.ScanStatusInProgress) {
 			return GetImageScanResultFromECR(ctx, client, imageName, tag, repositoryName)
 		}
-		if strings.EqualFold(*results.ImageScanStatus.Status, ecr.ScanStatusComplete) && time.Now().After(results.ImageScanFindings.ImageScanCompletedAt.Add(24)) {
+		if strings.EqualFold(*results.ImageScanStatus.Status, ecr.ScanStatusComplete) && !((*results.ImageScanFindings.ImageScanCompletedAt).Before(time.Now().Add(24 * time.Hour))) {
 			err := StartECRImageScan(ctx, client, imageName, tag, repositoryName)
 			if err != nil {
 				return results, err
