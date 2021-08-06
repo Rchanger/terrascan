@@ -1,0 +1,17 @@
+{
+    "name": "runusingupgrade",
+    "file": "runusingupgrade.rego",
+    "policy_type": "docker",
+    "resource_type": "run",
+    "template_args": {
+        "prefix": "",
+        "suffix": "",
+        "name": "runusingupgrade"
+    },
+    "severity": "HIGH",
+    "description": "Ensure that Commands 'apt-get upgrade' and 'apt-get dist-upgrade' are not being used",
+    "reference_id": "AC_DOCKER_0052",
+    "category": "Infrastructure Security",
+    "id": "AC_DOCKER_0052",
+    "version": 1
+}
