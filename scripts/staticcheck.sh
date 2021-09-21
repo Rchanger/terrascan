@@ -6,5 +6,5 @@ set -o pipefail
 
 export GO111MODULE=on
 export PATH=$PATH:$(go env GOPATH)/bin
-go get -u honnef.co/go/tools/cmd/staticcheck
+go get -d -u honnef.co/go/tools/cmd/staticcheck
 staticcheck -f stylish ./...
