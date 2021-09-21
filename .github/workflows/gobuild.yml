@@ -12,6 +12,7 @@ jobs:
       GOPATH: /home/runner/work/terrascan
       GOBIN: /home/runner/work/terrascan/bin
       GO_VERSION: 1.16
+      GOFLAGS: -mod=mod
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_TEST }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_TEST }}
       AWS_REGION: ${{ secrets.AWS_REGION_TEST }}
