@@ -86,7 +86,7 @@ func getFileName(path string) string {
 }
 
 // getErrorMessagesFromDiagnostics should be called when diags.HasErrors is true
-func getErrorMessagesFromDiagnostics(diags hcl.Diagnostics) string { //nolint
+func getErrorMessagesFromDiagnostics(diags hcl.Diagnostics) string {
 	var errMsgs []string
 	for _, v := range diags {
 		errMsgs = append(errMsgs, v.Error())

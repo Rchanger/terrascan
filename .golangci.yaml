@@ -6,6 +6,7 @@ linters:
     - errcheck
     - staticcheck
     - unused
+    - typecheck
     - structcheck
     - varcheck
     - revive
@@ -31,11 +32,5 @@ linters-settings:
     disabled-checks:
       - ifElseChain 
   gocyclo:
-    min-complexity: 50  
-
-  
-
-output:
-    # colored-line-number|line-number|json|tab|checkstyle|code-climate, default is "colored-line-number"
-    format: tab
+    min-complexity: 30  
 
