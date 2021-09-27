@@ -30,7 +30,10 @@ jobs:
     #   run: go get -u golang.org/x/lint/golint
 
     - name: Go validations
-      run: make validate
+      uses: golangci/golangci-lint-action@v2
+      with:
+        # Optional: version of golangci-lint to use in form of v1.2 or v1.2.3 or `latest` to use the latest version
+        version: v1.29
 
     - name: Build Terrascan
       run: make build
