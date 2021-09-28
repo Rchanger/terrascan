@@ -37,7 +37,9 @@ linters-settings:
   # to run goimports locally to fix this linter issue use this:
   # goimports -w -local="github.com/accurics/terrascan" </path/to/file>
     local-prefixes: "github.com/accurics/terrascan"
-  
 
+output:
+  # colored-line-number|line-number|json|tab|checkstyle|code-climate, default is "colored-line-number"
+  format: tab
   
 
